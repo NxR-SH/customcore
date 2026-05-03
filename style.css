@@ -2858,3 +2858,37 @@ section {
         max-width: 250px;
     }
 }
+
+/* ===== Google AdSense Banners ===== */
+.ad-banner {
+    width: 100%;
+    margin: 2rem auto;
+    text-align: center;
+    overflow: hidden;
+}
+
+.ad-banner-top {
+    background: rgba(0, 0, 0, 0.2);
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+    padding: 0.5rem 0;
+}
+
+.ad-banner-mid {
+    padding: 1rem 0;
+}
+
+.ad-banner-bottom {
+    background: rgba(0, 0, 0, 0.2);
+    border-top: 1px solid var(--border-color);
+    padding: 0.5rem 0;
+}
+
+.ad-label {
+    font-size: 0.65rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.25rem;
+    opacity: 0.5;
+}
