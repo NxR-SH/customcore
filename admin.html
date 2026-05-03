@@ -8,7 +8,17 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
-<body>
+<body class="admin-page">
+    <!-- Admin Access Check -->
+    <div id="adminAccessCheck" class="admin-access-check">
+        <div class="access-check-content">
+            <div class="loader-content">
+                <div class="neon-circle"></div>
+                <p>Vérification des droits d'accès...</p>
+            </div>
+        </div>
+    </div>
+
     <!-- Navigation -->
     <nav class="navbar">
         <div class="nav-container">
@@ -29,7 +39,7 @@
     </nav>
 
     <!-- Admin Dashboard -->
-    <section class="admin-dashboard">
+    <section id="adminDashboard" class="admin-dashboard" style="display: none;">
         <div class="container">
             <div class="admin-header">
                 <h1>Panneau d'Administration</h1>
@@ -220,6 +230,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
+    <script src="admin-auth.js"></script>
     <script src="auth.js"></script>
     <script src="admin.js"></script>
     <script src="admin-tabs.js"></script>

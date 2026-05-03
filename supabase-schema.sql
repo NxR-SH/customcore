@@ -269,8 +269,8 @@ CREATE POLICY "Admins can manage portfolio items" ON portfolio_items
     FOR ALL USING (
         EXISTS (
             SELECT 1 FROM user_profiles 
-            WHERE user_profiles.user_id = auth.uid() 
-            AND user_profiles.role = 'admin'
+            WHERE id = auth.uid() 
+            AND role = 'admin'
         )
     );
 
@@ -296,8 +296,8 @@ CREATE POLICY "Admins can manage all reviews" ON reviews
     FOR ALL USING (
         EXISTS (
             SELECT 1 FROM user_profiles 
-            WHERE user_profiles.user_id = auth.uid() 
-            AND user_profiles.role = 'admin'
+            WHERE id = auth.uid() 
+            AND role = 'admin'
         )
     );
 

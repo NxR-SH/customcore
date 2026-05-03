@@ -879,7 +879,7 @@ async function loadReviews() {
             .from('reviews')
             .select(`
                 *,
-                user_profiles!inner(name, server_name)
+                user_profiles(name, server_name)
             `)
             .eq('is_approved', true)
             .order('is_featured', { ascending: false })

@@ -5,23 +5,76 @@ class AdminDashboard {
         this.quotes = [];
         this.clients = [];
         this.invoices = [];
+        this.portfolioItems = [];
+        this.reviews = [];
         this.init();
     }
 
     async init() {
-        // Get current user and check admin role
-        this.currentUser = await authSystem.getCurrentUser();
-        
-        if (!this.currentUser || this.currentUser.role !== 'admin') {
-            window.location.href = 'login.html';
-            return;
-        }
+        try {
+            // Show access check screen
+            this.showAccessCheck();
+            
+            // Get current user and check admin role
+            this.currentUser = await authSystem.getCurrentUser();
+            
+            if (!this.currentUser) {
+                this.redirectToLogin('Vous devez être connecté pour accéder à cette page.');
+                return;
+            }
 
-        // Load data
-        await this.loadData();
-        
-        // Initialize UI
-        this.initializeUI();
+            // Double check admin role from database
+            const { data: userProfile, error } = await supabase
+                .from('user_profiles')
+                .select('role')
+                .eq('id', this.currentUser.id)
+                .single();
+
+            if (error || !userProfile || userProfile.role !== 'admin') {
+                this.redirectToLogin('Accès refusé. Vous n\'avez pas les droits d\'administrateur.');
+                return;
+            }
+
+            // Hide access check and show dashboard
+            this.hideAccessCheck();
+            this.showDashboard();
+
+            // Load data
+            await this.loadData();
+            
+            // Initialize UI
+            this.initializeUI();
+
+        } catch (error) {
+            console.error('Error initializing admin dashboard:', error);
+            this.redirectToLogin('Erreur lors de la vérification des droits d\'accès.');
+        }
+    }
+
+    showAccessCheck() {
+        const accessCheck = document.getElementById('adminAccessCheck');
+        if (accessCheck) {
+            accessCheck.style.display = 'flex';
+        }
+    }
+
+    hideAccessCheck() {
+        const accessCheck = document.getElementById('adminAccessCheck');
+        if (accessCheck) {
+            accessCheck.style.display = 'none';
+        }
+    }
+
+    showDashboard() {
+        const dashboard = document.getElementById('adminDashboard');
+        if (dashboard) {
+            dashboard.style.display = 'block';
+        }
+    }
+
+    redirectToLogin(message) {
+        alert(message);
+        window.location.href = 'login.html';
     }
 
     async loadData() {
@@ -941,7 +994,7 @@ class AdminDashboard {
                 .from('reviews')
                 .select(`
                     *,
-                    user_profiles!inner(name, server_name)
+                    user_profiles(name, server_name)
                 `)
                 .order('created_at', { ascending: false });
 

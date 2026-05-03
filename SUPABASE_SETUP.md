@@ -165,3 +165,29 @@ Activez les logs pour débugger :
 - Documentation : [supabase.com/docs](https://supabase.com/docs)
 - Discord : [discord.supabase.com](https://discord.supabase.com)
 - GitHub : [github.com/supabase/supabase](https://github.com/supabase/supabase)
+
+## 🔧 Correction des Erreurs SQL
+
+### Erreur "column user_id does not exist"
+
+Si vous rencontrez cette erreur lors de l'exécution du schéma :
+
+1. **Utilisez le script de correction** :
+   - Allez dans l'éditeur SQL de Supabase
+   - Copiez et collez le contenu de `fix-policies.sql`
+   - Exécutez le script
+
+2. **Ou recréez la base de données** :
+   - Supprimez toutes les tables existantes
+   - Réexécutez `supabase-schema.sql` (version corrigée)
+
+### Structure des Tables
+
+- **`user_profiles`** : `id` (UUID, clé primaire) référence `auth.users(id)`
+- **`quotes`** : `user_id` (UUID) référence `auth.users(id)`
+- **`invoices`** : `user_id` (UUID) référence `auth.users(id)`
+- **`reviews`** : `user_id` (UUID) référence `auth.users(id)`
+
+### Vérification
+
+Utilisez le script de test `test-admin-protection.js` dans la console du navigateur pour vérifier que tout fonctionne correctement.

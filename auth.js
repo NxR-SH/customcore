@@ -238,7 +238,14 @@ class AuthSystem {
         if (supabaseService.isAuthenticated()) {
             // Ajouter les liens pour utilisateur connecté
             const dashboardLink = document.createElement('li')
-            dashboardLink.innerHTML = `<a href="${supabaseService.isAdmin() ? 'admin.html' : 'dashboard.html'}" class="nav-link auth-link">Dashboard</a>`
+            dashboardLink.innerHTML = `<a href="dashboard.html" class="nav-link auth-link">Dashboard</a>`
+            
+            // Ajouter le lien admin si l'utilisateur est admin
+            if (supabaseService.isAdmin()) {
+                const adminLink = document.createElement('li')
+                adminLink.innerHTML = `<a href="admin.html" class="nav-link auth-link">Admin</a>`
+                navMenu.appendChild(adminLink)
+            }
             
             const logoutLink = document.createElement('li')
             logoutLink.innerHTML = `<a href="#" onclick="authSystem.logout()" class="nav-link auth-link">Déconnexion</a>`

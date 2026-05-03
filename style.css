@@ -2748,3 +2748,113 @@ section {
         font-size: 0.9rem;
     }
 }
+/* Admin access check */
+.admin-access-check {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--bg-dark);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.access-check-content {
+    text-align: center;
+    color: var(--text-primary);
+}
+
+.access-check-content .neon-circle {
+    width: 60px;
+    height: 60px;
+    border: 3px solid var(--primary-color);
+    border-top: 3px solid transparent;
+    border-radius: 50%;
+    margin: 0 auto 1rem;
+    animation: spin 1s linear infinite;
+}
+
+.access-check-content p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+/* Access Denied Page */
+.access-denied-section {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 0;
+}
+
+.access-denied-content {
+    text-align: center;
+    max-width: 600px;
+    padding: 3rem;
+    background: var(--bg-darker);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+}
+
+.access-denied-icon {
+    font-size: 4rem;
+    color: #dc3545;
+    margin-bottom: 2rem;
+}
+
+.access-denied-content h1 {
+    font-size: 2.5rem;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+}
+
+.access-denied-message {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+}
+
+.access-denied-details {
+    margin-bottom: 3rem;
+}
+
+.access-denied-details p {
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.access-denied-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+    .access-denied-content {
+        margin: 1rem;
+        padding: 2rem;
+    }
+    
+    .access-denied-content h1 {
+        font-size: 2rem;
+    }
+    
+    .access-denied-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .access-denied-actions .btn {
+        width: 100%;
+        max-width: 250px;
+    }
+}
