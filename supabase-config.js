@@ -3,9 +3,21 @@ const SUPABASE_URL = 'https://exzswzryjkbqpqivuuzg.supabase.co'
 const SUPABASE_ANON_KEY = 'sb_publishable_evyAFedjzKTM71JNRUbm9g_Cd0YuykD'
 const ADMIN_EMAIL = 'nxrsh27@gmail.com'
 
-// Le CDN @supabase/supabase-js expose window.supabase avec createClient
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+// Le CDN UMD expose le module dans window.supabase
+// On récupère createClient depuis le module, puis on remplace window.supabase par le client
+;(function () {
+    const module = window.supabase
 
-// Écraser window.supabase avec le client (pas le module)
-window.supabase = supabase
-window.ADMIN_EMAIL = ADMIN_EMAIL
+    if (!module || typeof module.createClient !== 'function') {
+        console.error('Supabase CDN non chargé correctement.')
+        return
+    }
+
+    const client = module.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+    // Remplacer le module par le client instancié
+    window.supabase = client
+    window.ADMIN_EMAIL = ADMIN_EMAIL
+
+    console.log('Supabase client initialisé ✓')
+})()
