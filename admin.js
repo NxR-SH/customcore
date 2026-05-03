@@ -14,7 +14,7 @@ class AdminDashboard {
         try {
             // Tout est caché par défaut, on vérifie d'abord
             // 1. Vérifier la session Supabase directement
-            const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+            const { data: { session }, error: sessionError } = await sb.auth.getSession();
 
             if (sessionError || !session) {
                 window.location.href = 'login.html';
@@ -1216,3 +1216,4 @@ function hidePortfolioForm() {
         window.adminDashboard.hidePortfolioForm();
     }
 }
+

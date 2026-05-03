@@ -605,3 +605,4 @@ function hideReviewForm() {
         window.clientDashboard.hideReviewForm();
     }
 }
+

@@ -147,11 +147,11 @@
 
                 try {
                     // Vérifier que le client supabase est bien initialisé
-                    if (!window.supabase || !window.supabase.auth) {
+                    if (!window.sb || !window.sb.auth) {
                         throw new Error('Client Supabase non initialisé. Rechargez la page.');
                     }
 
-                    const { error } = await window.supabase.auth.resetPasswordForEmail(email, {
+                    const { error } = await window.sb.auth.resetPasswordForEmail(email, {
                         redirectTo: window.location.origin + '/reset-password.html'
                     });
 
@@ -170,3 +170,4 @@
     </script>
 </body>
 </html>
+

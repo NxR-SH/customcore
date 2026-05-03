@@ -20,7 +20,7 @@ class AuthSystem {
 
     async checkAuthStatus() {
         try {
-            const { data: { session } } = await supabase.auth.getSession()
+            const { data: { session } } = await sb.auth.getSession()
             if (session) {
                 this.currentUser = session.user
                 this.updateUserInterface()
@@ -67,7 +67,7 @@ class AuthSystem {
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Connexion...'
 
         try {
-            const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+            const { data, error } = await sb.auth.signInWithPassword({ email, password })
             if (error) throw error
 
             this.currentUser = data.user
@@ -109,12 +109,12 @@ class AuthSystem {
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Création...'
 
         try {
-            const { data, error } = await supabase.auth.signUp({ email, password })
+            const { data, error } = await sb.auth.signUp({ email, password })
             if (error) throw error
 
             // Créer le profil
             if (data.user) {
-                await supabase.from('user_profiles').insert([{
+                await sb.from('user_profiles').insert([{
                     id: data.user.id,
                     email,
                     name,
@@ -137,7 +137,7 @@ class AuthSystem {
     async handleForgotPassword(email) {
         if (!email) return this.showError('Veuillez saisir votre email')
         try {
-            const { error } = await supabase.auth.resetPasswordForEmail(email, {
+            const { error } = await sb.auth.resetPasswordForEmail(email, {
                 redirectTo: `${window.location.origin}/reset-password.html`
             })
             if (error) throw error
@@ -177,13 +177,13 @@ class AuthSystem {
     }
 
     async logout() {
-        await supabase.auth.signOut()
+        await sb.auth.signOut()
         this.currentUser = null
         window.location.href = 'index.html'
     }
 
     async getCurrentUser() {
-        const { data: { session } } = await supabase.auth.getSession()
+        const { data: { session } } = await sb.auth.getSession()
         return session?.user || null
     }
 
@@ -216,3 +216,5 @@ document.addEventListener('DOMContentLoaded', () => {
 function logout() {
     authSystem?.logout()
 }
+
+

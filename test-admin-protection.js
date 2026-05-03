@@ -6,7 +6,7 @@ async function testAdminProtection() {
     
     try {
         // Test 1: Check if user is logged in
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        const { data: { user }, error: userError } = await sb.auth.getUser();
         
         if (userError || !user) {
             console.log('❌ Test 1 FAILED: User not logged in');
@@ -78,3 +78,4 @@ if (window.location.pathname.includes('admin.html')) {
 
 // Make function available globally
 window.testAdminProtection = testAdminProtection;
+

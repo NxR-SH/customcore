@@ -109,7 +109,7 @@ class ResetPasswordManager {
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mise à jour...'
 
         try {
-            const { error } = await supabase.auth.updateUser({ password: newPassword })
+            const { error } = await sb.auth.updateUser({ password: newPassword })
             const result = { success: !error, error: error?.message }
             
             if (result.success) {
@@ -201,3 +201,4 @@ class ResetPasswordManager {
 document.addEventListener('DOMContentLoaded', () => {
     new ResetPasswordManager()
 })
+
