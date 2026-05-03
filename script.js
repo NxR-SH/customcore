@@ -28,7 +28,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Initialize dashboard
-    initializeDashboard();
+    if (window.location.pathname.includes('dashboard.html')) {
+        initializeDashboard();
+    }
+    
+    // Initialize homepage content
+    if (window.location.pathname.includes('index.html') || window.location.pathname === '/') {
+        initializeHomepage();
+    }
     
     // Initialize smooth scrolling
     initializeSmoothScrolling();
@@ -800,3 +807,130 @@ const additionalCSS = `
 const style = document.createElement('style');
 style.textContent = additionalCSS;
 document.head.appendChild(style);
+
+// Homepage Functions
+async function initializeHomepage() {
+    await loadPortfolioItems();
+    await loadReviews();
+}
+
+async function loadPortfolioItems() {
+    const portfolioGrid = document.getElementById('portfolioGrid');
+    if (!portfolioGrid) return;
+
+    try {
+        const { data: items, error } = await supabase
+            .from('portfolio_items')
+            .select('*')
+            .eq('is_active', true)
+            .order('display_order', { ascending: true });
+
+        if (error) throw error;
+
+        if (!items || items.length === 0) {
+            portfolioGrid.innerHTML = `
+                <div class="portfolio-empty">
+                    <i class="fas fa-folder-open"></i>
+                    <h3>Portfolio en construction</h3>
+                    <p>Nos réalisations apparaîtront ici au fur et à mesure de nos projets.</p>
+                </div>
+            `;
+            return;
+        }
+
+        portfolioGrid.innerHTML = items.map(item => `
+            <div class="portfolio-item" data-aos="zoom-in">
+                <div class="portfolio-image">
+                    ${item.image_url ? 
+                        `<img src="${item.image_url}" alt="${item.title}">` :
+                        `<div class="portfolio-placeholder">
+                            <i class="fas fa-code"></i>
+                        </div>`
+                    }
+                </div>
+                <div class="portfolio-content">
+                    <h3>${item.title}</h3>
+                    <p>${item.description}</p>
+                    <div class="portfolio-tags">
+                        ${item.tags.map(tag => `<span>${tag}</span>`).join('')}
+                    </div>
+                </div>
+            </div>
+        `).join('');
+
+    } catch (error) {
+        console.error('Error loading portfolio:', error);
+        portfolioGrid.innerHTML = `
+            <div class="portfolio-empty">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>Erreur de chargement</h3>
+                <p>Impossible de charger le portfolio pour le moment.</p>
+            </div>
+        `;
+    }
+}
+
+async function loadReviews() {
+    const reviewsGrid = document.getElementById('reviewsGrid');
+    if (!reviewsGrid) return;
+
+    try {
+        const { data: reviews, error } = await supabase
+            .from('reviews')
+            .select(`
+                *,
+                user_profiles!inner(name, server_name)
+            `)
+            .eq('is_approved', true)
+            .order('is_featured', { ascending: false })
+            .order('created_at', { ascending: false })
+            .limit(6);
+
+        if (error) throw error;
+
+        if (!reviews || reviews.length === 0) {
+            reviewsGrid.innerHTML = `
+                <div class="testimonials-empty">
+                    <i class="fas fa-comments"></i>
+                    <h3>Vos avis nous intéressent</h3>
+                    <p>Les avis de nos clients apparaîtront ici. Connectez-vous pour laisser le vôtre après un projet terminé.</p>
+                    <a href="login.html" class="btn btn-primary">Se connecter</a>
+                </div>
+            `;
+            return;
+        }
+
+        reviewsGrid.innerHTML = reviews.map((review, index) => `
+            <div class="testimonial-card" data-aos="fade-up" data-aos-delay="${index * 100}">
+                <div class="testimonial-content">
+                    <div class="stars">
+                        ${Array.from({length: 5}, (_, i) => 
+                            `<i class="fas fa-star${i < review.rating ? '' : ' star-empty'}"></i>`
+                        ).join('')}
+                    </div>
+                    ${review.title ? `<h4>${review.title}</h4>` : ''}
+                    <p>"${review.comment}"</p>
+                </div>
+                <div class="testimonial-author">
+                    <div class="author-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="author-info">
+                        <h4>${review.user_profiles.name}</h4>
+                        <span>${review.user_profiles.server_name || 'Client FiveM Dev Pro'}</span>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+
+    } catch (error) {
+        console.error('Error loading reviews:', error);
+        reviewsGrid.innerHTML = `
+            <div class="testimonials-empty">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>Erreur de chargement</h3>
+                <p>Impossible de charger les avis pour le moment.</p>
+            </div>
+        `;
+    }
+}

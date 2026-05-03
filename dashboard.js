@@ -27,6 +27,9 @@ class ClientDashboard {
         
         // Initialize UI
         this.initializeUI();
+        
+        // Initialize review form
+        this.initializeReviewForm();
     }
 
     async loadUserData() {
@@ -48,6 +51,9 @@ class ClientDashboard {
 
             if (subscriptionsError) throw subscriptionsError;
             this.subscriptions = subscriptions || [];
+
+            // Load user's reviews
+            await this.loadUserReviews();
 
         } catch (error) {
             console.error('Error loading user data:', error);
@@ -387,6 +393,132 @@ class ClientDashboard {
         doc.save(`Facture_${invoice.number}.pdf`);
     }
 
+    initializeReviewForm() {
+        const ratingStars = document.querySelectorAll('#ratingInput .star');
+        let selectedRating = 0;
+
+        ratingStars.forEach(star => {
+            star.addEventListener('click', () => {
+                selectedRating = parseInt(star.dataset.rating);
+                this.updateStarDisplay(selectedRating);
+            });
+
+            star.addEventListener('mouseover', () => {
+                const hoverRating = parseInt(star.dataset.rating);
+                this.updateStarDisplay(hoverRating);
+            });
+        });
+
+        document.getElementById('ratingInput').addEventListener('mouseleave', () => {
+            this.updateStarDisplay(selectedRating);
+        });
+
+        document.getElementById('newReviewForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await this.submitReview(selectedRating);
+        });
+    }
+
+    updateStarDisplay(rating) {
+        const stars = document.querySelectorAll('#ratingInput .star');
+        stars.forEach((star, index) => {
+            if (index < rating) {
+                star.classList.add('active');
+            } else {
+                star.classList.remove('active');
+            }
+        });
+    }
+
+    async submitReview(rating) {
+        if (rating === 0) {
+            alert('Veuillez sélectionner une note');
+            return;
+        }
+
+        const title = document.getElementById('reviewTitle').value;
+        const comment = document.getElementById('reviewComment').value;
+
+        if (!comment.trim()) {
+            alert('Veuillez saisir un commentaire');
+            return;
+        }
+
+        try {
+            const { error } = await supabase
+                .from('reviews')
+                .insert([{
+                    user_id: this.currentUser.id,
+                    rating: rating,
+                    title: title || null,
+                    comment: comment.trim()
+                }]);
+
+            if (error) throw error;
+
+            alert('Votre avis a été soumis et sera examiné avant publication. Merci !');
+            this.hideReviewForm();
+            await this.loadUserReviews();
+
+        } catch (error) {
+            console.error('Error submitting review:', error);
+            alert('Erreur lors de la soumission de l\'avis');
+        }
+    }
+
+    async loadUserReviews() {
+        const container = document.getElementById('userReviews');
+        if (!container) return;
+
+        try {
+            const { data: reviews, error } = await supabase
+                .from('reviews')
+                .select('*')
+                .eq('user_id', this.currentUser.id)
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+
+            if (!reviews || reviews.length === 0) {
+                container.innerHTML = '<p class="no-data">Vous n\'avez pas encore laissé d\'avis</p>';
+                return;
+            }
+
+            container.innerHTML = reviews.map(review => `
+                <div class="review-item">
+                    <div class="review-header">
+                        <div class="review-rating">
+                            ${Array.from({length: 5}, (_, i) => 
+                                `<i class="fas fa-star${i < review.rating ? '' : ' star-empty'}"></i>`
+                            ).join('')}
+                        </div>
+                        <span class="review-status ${review.is_approved ? 'approved' : 'pending'}">
+                            ${review.is_approved ? 'Publié' : 'En attente'}
+                        </span>
+                    </div>
+                    ${review.title ? `<h4>${review.title}</h4>` : ''}
+                    <p>${review.comment}</p>
+                    <small>Publié le ${new Date(review.created_at).toLocaleDateString('fr-FR')}</small>
+                </div>
+            `).join('');
+
+        } catch (error) {
+            console.error('Error loading user reviews:', error);
+            container.innerHTML = '<p class="no-data">Erreur lors du chargement des avis</p>';
+        }
+    }
+
+    showReviewForm() {
+        document.getElementById('reviewForm').style.display = 'block';
+        document.getElementById('reviewTitle').value = '';
+        document.getElementById('reviewComment').value = '';
+        this.updateStarDisplay(0);
+    }
+
+    hideReviewForm() {
+        document.getElementById('reviewForm').style.display = 'none';
+    }
+
     async cancelSubscription(subscriptionId) {
         const confirmed = confirm('Êtes-vous sûr de vouloir annuler cet abonnement ?');
         if (!confirmed) return;
@@ -460,3 +592,16 @@ document.addEventListener('DOMContentLoaded', function() {
     clientDashboard = new ClientDashboard();
     window.clientDashboard = clientDashboard;
 });
+
+// Global functions for review form
+function showReviewForm() {
+    if (window.clientDashboard) {
+        window.clientDashboard.showReviewForm();
+    }
+}
+
+function hideReviewForm() {
+    if (window.clientDashboard) {
+        window.clientDashboard.hideReviewForm();
+    }
+}

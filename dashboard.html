@@ -22,6 +22,7 @@
                 <li><a href="dashboard.html" class="nav-link">Dashboard</a></li>
                 <li><a href="#invoices" class="nav-link">Factures</a></li>
                 <li><a href="#subscriptions" class="nav-link">Abonnements</a></li>
+                <li><a href="#reviews" class="nav-link">Avis</a></li>
                 <li><a href="#" onclick="logout()" class="nav-link">Déconnexion</a></li>
             </ul>
         </div>
@@ -100,6 +101,49 @@
                 </div>
                 <div id="subscriptionsGrid" class="subscriptions-grid">
                     <p class="no-data">Aucun abonnement actif</p>
+                </div>
+            </section>
+
+            <!-- Reviews Section -->
+            <section id="reviews" class="dashboard-section">
+                <div class="section-header">
+                    <h2>Mes Avis</h2>
+                    <button class="btn btn-primary" onclick="showReviewForm()">
+                        <i class="fas fa-plus"></i>
+                        Laisser un avis
+                    </button>
+                </div>
+                
+                <div id="reviewForm" class="review-form" style="display: none;">
+                    <h3>Laisser un avis</h3>
+                    <form id="newReviewForm">
+                        <div class="form-group">
+                            <label>Note *</label>
+                            <div class="rating-input" id="ratingInput">
+                                <i class="fas fa-star star" data-rating="1"></i>
+                                <i class="fas fa-star star" data-rating="2"></i>
+                                <i class="fas fa-star star" data-rating="3"></i>
+                                <i class="fas fa-star star" data-rating="4"></i>
+                                <i class="fas fa-star star" data-rating="5"></i>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="reviewTitle">Titre (optionnel)</label>
+                            <input type="text" id="reviewTitle" placeholder="Titre de votre avis">
+                        </div>
+                        <div class="form-group">
+                            <label for="reviewComment">Commentaire *</label>
+                            <textarea id="reviewComment" placeholder="Partagez votre expérience..." required></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" onclick="hideReviewForm()">Annuler</button>
+                            <button type="submit" class="btn btn-primary">Publier l'avis</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="userReviews" class="user-reviews">
+                    <p class="no-data">Vous n'avez pas encore laissé d'avis</p>
                 </div>
             </section>
         </div>

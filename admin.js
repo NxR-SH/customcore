@@ -53,6 +53,12 @@ class AdminDashboard {
             if (invoicesError) throw invoicesError;
             this.invoices = invoices || [];
 
+            // Load portfolio items
+            await this.loadPortfolioItems();
+
+            // Load reviews
+            await this.loadReviews();
+
         } catch (error) {
             console.error('Error loading admin data:', error);
             this.quotes = [];
@@ -802,6 +808,311 @@ class AdminDashboard {
         // Download
         doc.save(`Facture_${invoice.number}.pdf`);
     }
+
+    // Portfolio Management
+    async loadPortfolioItems() {
+        try {
+            const { data: items, error } = await supabase
+                .from('portfolio_items')
+                .select('*')
+                .order('display_order', { ascending: true });
+
+            if (error) throw error;
+
+            this.portfolioItems = items || [];
+            this.displayPortfolioItems();
+        } catch (error) {
+            console.error('Error loading portfolio items:', error);
+            this.portfolioItems = [];
+        }
+    }
+
+    displayPortfolioItems() {
+        const container = document.getElementById('portfolioList');
+        if (!container) return;
+
+        if (this.portfolioItems.length === 0) {
+            container.innerHTML = '<p class="no-data">Aucun projet dans le portfolio</p>';
+            return;
+        }
+
+        container.innerHTML = this.portfolioItems.map(item => `
+            <div class="portfolio-item-admin">
+                <div class="portfolio-item-header">
+                    <h4>${item.title}</h4>
+                    <div class="portfolio-item-actions">
+                        <button class="btn-action btn-edit" onclick="adminDashboard.editPortfolioItem('${item.id}')" title="Modifier">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn-action ${item.is_active ? 'btn-deactivate' : 'btn-activate'}" 
+                                onclick="adminDashboard.togglePortfolioItem('${item.id}')" 
+                                title="${item.is_active ? 'Désactiver' : 'Activer'}">
+                            <i class="fas fa-${item.is_active ? 'eye-slash' : 'eye'}"></i>
+                        </button>
+                        <button class="btn-action btn-delete" onclick="adminDashboard.deletePortfolioItem('${item.id}')" title="Supprimer">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                <p>${item.description}</p>
+                <div class="portfolio-item-meta">
+                    <span class="status-badge status-${item.is_active ? 'active' : 'inactive'}">
+                        ${item.is_active ? 'Actif' : 'Inactif'}
+                    </span>
+                    <span>Ordre: ${item.display_order}</span>
+                </div>
+                <div class="tags-display">
+                    ${item.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                </div>
+            </div>
+        `).join('');
+    }
+
+    async savePortfolioItem(itemData, itemId = null) {
+        try {
+            if (itemId) {
+                // Update existing item
+                const { error } = await supabase
+                    .from('portfolio_items')
+                    .update(itemData)
+                    .eq('id', itemId);
+
+                if (error) throw error;
+            } else {
+                // Create new item
+                const { error } = await supabase
+                    .from('portfolio_items')
+                    .insert([itemData]);
+
+                if (error) throw error;
+            }
+
+            await this.loadPortfolioItems();
+            this.hidePortfolioForm();
+            alert(itemId ? 'Projet modifié avec succès' : 'Projet ajouté avec succès');
+        } catch (error) {
+            console.error('Error saving portfolio item:', error);
+            alert('Erreur lors de la sauvegarde du projet');
+        }
+    }
+
+    async togglePortfolioItem(itemId) {
+        try {
+            const item = this.portfolioItems.find(i => i.id === itemId);
+            if (!item) return;
+
+            const { error } = await supabase
+                .from('portfolio_items')
+                .update({ is_active: !item.is_active })
+                .eq('id', itemId);
+
+            if (error) throw error;
+
+            await this.loadPortfolioItems();
+        } catch (error) {
+            console.error('Error toggling portfolio item:', error);
+            alert('Erreur lors de la modification du statut');
+        }
+    }
+
+    async deletePortfolioItem(itemId) {
+        if (!confirm('Êtes-vous sûr de vouloir supprimer ce projet ?')) return;
+
+        try {
+            const { error } = await supabase
+                .from('portfolio_items')
+                .delete()
+                .eq('id', itemId);
+
+            if (error) throw error;
+
+            await this.loadPortfolioItems();
+            alert('Projet supprimé avec succès');
+        } catch (error) {
+            console.error('Error deleting portfolio item:', error);
+            alert('Erreur lors de la suppression du projet');
+        }
+    }
+
+    // Reviews Management
+    async loadReviews() {
+        try {
+            const { data: reviews, error } = await supabase
+                .from('reviews')
+                .select(`
+                    *,
+                    user_profiles!inner(name, server_name)
+                `)
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+
+            this.reviews = reviews || [];
+            this.displayReviews();
+        } catch (error) {
+            console.error('Error loading reviews:', error);
+            this.reviews = [];
+        }
+    }
+
+    displayReviews(filter = 'all') {
+        const container = document.getElementById('reviewsList');
+        if (!container) return;
+
+        let filteredReviews = this.reviews;
+        if (filter !== 'all') {
+            if (filter === 'pending') {
+                filteredReviews = this.reviews.filter(r => !r.is_approved);
+            } else if (filter === 'approved') {
+                filteredReviews = this.reviews.filter(r => r.is_approved && !r.is_featured);
+            } else if (filter === 'featured') {
+                filteredReviews = this.reviews.filter(r => r.is_featured);
+            }
+        }
+
+        if (filteredReviews.length === 0) {
+            container.innerHTML = '<p class="no-data">Aucun avis trouvé</p>';
+            return;
+        }
+
+        container.innerHTML = filteredReviews.map(review => `
+            <div class="review-item">
+                <div class="review-header">
+                    <div class="review-info">
+                        <h4>${review.user_profiles.name}</h4>
+                        <div class="review-rating">
+                            ${Array.from({length: 5}, (_, i) => 
+                                `<i class="fas fa-star${i < review.rating ? '' : ' star-empty'}"></i>`
+                            ).join('')}
+                        </div>
+                    </div>
+                    <div class="review-status-container">
+                        <span class="review-status ${review.is_featured ? 'featured' : review.is_approved ? 'approved' : 'pending'}">
+                            ${review.is_featured ? 'Mis en avant' : review.is_approved ? 'Approuvé' : 'En attente'}
+                        </span>
+                    </div>
+                </div>
+                ${review.title ? `<h5>${review.title}</h5>` : ''}
+                <p>${review.comment}</p>
+                <small>Publié le ${new Date(review.created_at).toLocaleDateString('fr-FR')}</small>
+                <div class="review-actions">
+                    ${!review.is_approved ? 
+                        `<button class="btn btn-primary btn-sm" onclick="adminDashboard.approveReview('${review.id}')">
+                            Approuver
+                        </button>` : ''
+                    }
+                    ${review.is_approved && !review.is_featured ? 
+                        `<button class="btn btn-secondary btn-sm" onclick="adminDashboard.featureReview('${review.id}')">
+                            Mettre en avant
+                        </button>` : ''
+                    }
+                    ${review.is_featured ? 
+                        `<button class="btn btn-secondary btn-sm" onclick="adminDashboard.unfeatureReview('${review.id}')">
+                            Retirer de la mise en avant
+                        </button>` : ''
+                    }
+                    <button class="btn btn-danger btn-sm" onclick="adminDashboard.deleteReview('${review.id}')">
+                        Supprimer
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    async approveReview(reviewId) {
+        try {
+            const { error } = await supabase
+                .from('reviews')
+                .update({ is_approved: true })
+                .eq('id', reviewId);
+
+            if (error) throw error;
+
+            await this.loadReviews();
+            alert('Avis approuvé avec succès');
+        } catch (error) {
+            console.error('Error approving review:', error);
+            alert('Erreur lors de l\'approbation de l\'avis');
+        }
+    }
+
+    async featureReview(reviewId) {
+        try {
+            const { error } = await supabase
+                .from('reviews')
+                .update({ is_featured: true })
+                .eq('id', reviewId);
+
+            if (error) throw error;
+
+            await this.loadReviews();
+            alert('Avis mis en avant avec succès');
+        } catch (error) {
+            console.error('Error featuring review:', error);
+            alert('Erreur lors de la mise en avant de l\'avis');
+        }
+    }
+
+    async unfeatureReview(reviewId) {
+        try {
+            const { error } = await supabase
+                .from('reviews')
+                .update({ is_featured: false })
+                .eq('id', reviewId);
+
+            if (error) throw error;
+
+            await this.loadReviews();
+            alert('Avis retiré de la mise en avant');
+        } catch (error) {
+            console.error('Error unfeaturing review:', error);
+            alert('Erreur lors du retrait de la mise en avant');
+        }
+    }
+
+    async deleteReview(reviewId) {
+        if (!confirm('Êtes-vous sûr de vouloir supprimer cet avis ?')) return;
+
+        try {
+            const { error } = await supabase
+                .from('reviews')
+                .delete()
+                .eq('id', reviewId);
+
+            if (error) throw error;
+
+            await this.loadReviews();
+            alert('Avis supprimé avec succès');
+        } catch (error) {
+            console.error('Error deleting review:', error);
+            alert('Erreur lors de la suppression de l\'avis');
+        }
+    }
+
+    // UI Helper Methods
+    showPortfolioForm() {
+        document.getElementById('portfolioForm').style.display = 'block';
+        document.getElementById('portfolioItemForm').reset();
+    }
+
+    hidePortfolioForm() {
+        document.getElementById('portfolioForm').style.display = 'none';
+    }
+
+    editPortfolioItem(itemId) {
+        const item = this.portfolioItems.find(i => i.id === itemId);
+        if (!item) return;
+
+        document.getElementById('portfolioTitle').value = item.title;
+        document.getElementById('portfolioImageUrl').value = item.image_url || '';
+        document.getElementById('portfolioDescription').value = item.description;
+        document.getElementById('portfolioTags').value = item.tags.join(', ');
+        document.getElementById('portfolioTechnologies').value = item.technologies.join(', ');
+        document.getElementById('portfolioOrder').value = item.display_order;
+
+        document.getElementById('portfolioForm').style.display = 'block';
+        document.getElementById('portfolioItemForm').dataset.editId = itemId;
+    }
 }
 
 // Initialize admin dashboard
@@ -809,4 +1120,46 @@ let adminDashboard;
 document.addEventListener('DOMContentLoaded', function() {
     adminDashboard = new AdminDashboard();
     window.adminDashboard = adminDashboard;
+
+    // Initialize portfolio form
+    const portfolioForm = document.getElementById('portfolioItemForm');
+    if (portfolioForm) {
+        portfolioForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                title: document.getElementById('portfolioTitle').value,
+                image_url: document.getElementById('portfolioImageUrl').value || null,
+                description: document.getElementById('portfolioDescription').value,
+                tags: document.getElementById('portfolioTags').value.split(',').map(t => t.trim()).filter(t => t),
+                technologies: document.getElementById('portfolioTechnologies').value.split(',').map(t => t.trim()).filter(t => t),
+                display_order: parseInt(document.getElementById('portfolioOrder').value) || 0
+            };
+
+            const editId = portfolioForm.dataset.editId;
+            await adminDashboard.savePortfolioItem(formData, editId || null);
+            delete portfolioForm.dataset.editId;
+        });
+    }
+
+    // Initialize reviews filter
+    const reviewsFilter = document.getElementById('reviewsFilter');
+    if (reviewsFilter) {
+        reviewsFilter.addEventListener('change', (e) => {
+            adminDashboard.displayReviews(e.target.value);
+        });
+    }
 });
+
+// Global functions
+function showPortfolioForm() {
+    if (window.adminDashboard) {
+        window.adminDashboard.showPortfolioForm();
+    }
+}
+
+function hidePortfolioForm() {
+    if (window.adminDashboard) {
+        window.adminDashboard.hidePortfolioForm();
+    }
+}

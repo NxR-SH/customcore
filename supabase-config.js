@@ -2,8 +2,8 @@
 import { createClient } from 'https://cdn.skypack.dev/@supabase/supabase-js@2'
 
 // Configuration Supabase (remplacez par vos vraies clés)
-const SUPABASE_URL = 'https://tcqgvbqzfznqdykvgoay.supabase.co'
-const SUPABASE_ANON_KEY = 'sb_publishable_Sl9hFBQ57m0xrYO-ufHwvA_57VTOhbD'
+const SUPABASE_URL = 'https://exzswzryjkbqpqivuuzg.supabase.co'
+const SUPABASE_ANON_KEY = 'sb_publishable_evyAFedjzKTM71JNRUbm9g_Cd0YuykD'
 
 // Créer le client Supabase
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)

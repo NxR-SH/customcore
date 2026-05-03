@@ -150,54 +150,11 @@
     <section id="portfolio" class="portfolio">
         <div class="container">
             <h2 class="section-title">Notre <span class="neon-text">Portfolio</span></h2>
-            <div class="portfolio-grid">
-                <div class="portfolio-item" data-aos="zoom-in">
-                    <div class="portfolio-image">
-                        <div class="portfolio-placeholder">
-                            <i class="fas fa-briefcase"></i>
-                        </div>
-                    </div>
-                    <div class="portfolio-content">
-                        <h3>Système Bancaire Avancé</h3>
-                        <p>Script ESX complet avec interface moderne, prêts, virements et historique détaillé.</p>
-                        <div class="portfolio-tags">
-                            <span>ESX</span>
-                            <span>UI/UX</span>
-                            <span>MySQL</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="portfolio-item" data-aos="zoom-in" data-aos-delay="100">
-                    <div class="portfolio-image">
-                        <div class="portfolio-placeholder">
-                            <i class="fas fa-car"></i>
-                        </div>
-                    </div>
-                    <div class="portfolio-content">
-                        <h3>Concessionnaire Dynamique</h3>
-                        <p>Système de vente de véhicules avec test drive, financement et catalogue interactif.</p>
-                        <div class="portfolio-tags">
-                            <span>QBCore</span>
-                            <span>React</span>
-                            <span>Animation</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="portfolio-item" data-aos="zoom-in" data-aos-delay="200">
-                    <div class="portfolio-image">
-                        <div class="portfolio-placeholder">
-                            <i class="fas fa-shield-alt"></i>
-                        </div>
-                    </div>
-                    <div class="portfolio-content">
-                        <h3>Bot Discord Sécurisé</h3>
-                        <p>Bot complet avec whitelist automatique, logs serveur et système de tickets.</p>
-                        <div class="portfolio-tags">
-                            <span>Discord.js</span>
-                            <span>Node.js</span>
-                            <span>MongoDB</span>
-                        </div>
-                    </div>
+            <div id="portfolioGrid" class="portfolio-grid">
+                <div class="portfolio-empty">
+                    <i class="fas fa-folder-open"></i>
+                    <h3>Portfolio en construction</h3>
+                    <p>Nos réalisations apparaîtront ici au fur et à mesure de nos projets.</p>
                 </div>
             </div>
         </div>
@@ -207,69 +164,12 @@
     <section id="avis" class="testimonials">
         <div class="container">
             <h2 class="section-title">Avis <span class="neon-text">Clients</span></h2>
-            <div class="testimonials-grid">
-                <div class="testimonial-card" data-aos="fade-right">
-                    <div class="testimonial-content">
-                        <div class="stars">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                        </div>
-                        <p>"Excellent travail sur notre système bancaire. Code propre, optimisé et livré dans les temps. Je recommande vivement !"</p>
-                    </div>
-                    <div class="testimonial-author">
-                        <div class="author-avatar">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <div class="author-info">
-                            <h4>Alexandre M.</h4>
-                            <span>Propriétaire - Los Santos RP</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="testimonial-card" data-aos="fade-up" data-aos-delay="100">
-                    <div class="testimonial-content">
-                        <div class="stars">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                        </div>
-                        <p>"Interface UI magnifique et très intuitive. Nos joueurs adorent le nouveau design. Service client au top !"</p>
-                    </div>
-                    <div class="testimonial-author">
-                        <div class="author-avatar">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <div class="author-info">
-                            <h4>Sarah L.</h4>
-                            <span>Admin - Vice City Life</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="testimonial-card" data-aos="fade-left" data-aos-delay="200">
-                    <div class="testimonial-content">
-                        <div class="stars">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                        </div>
-                        <p>"Bot Discord parfait pour notre communauté. Whitelist automatique et logs détaillés. Que du bonheur !"</p>
-                    </div>
-                    <div class="testimonial-author">
-                        <div class="author-avatar">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <div class="author-info">
-                            <h4>Kevin R.</h4>
-                            <span>Fondateur - Liberty City RP</span>
-                        </div>
-                    </div>
+            <div id="reviewsGrid" class="testimonials-grid">
+                <div class="testimonials-empty">
+                    <i class="fas fa-comments"></i>
+                    <h3>Vos avis nous intéressent</h3>
+                    <p>Les avis de nos clients apparaîtront ici. Connectez-vous pour laisser le vôtre après un projet terminé.</p>
+                    <a href="login.html" class="btn btn-primary">Se connecter</a>
                 </div>
             </div>
         </div>
@@ -324,6 +224,8 @@
         </div>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
     <script src="script.js"></script>
     <script src="auth.js"></script>
 </body>

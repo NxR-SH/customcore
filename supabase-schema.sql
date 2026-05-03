@@ -218,11 +218,96 @@ CREATE POLICY "Admins can update all subscriptions" ON subscriptions FOR UPDATE 
 -- Le compte admin doit être créé manuellement via l'interface Supabase Auth
 -- avec l'email nxrsh27@gmail.com
 
+-- Table pour les éléments du portfolio
+CREATE TABLE portfolio_items (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    image_url TEXT,
+    tags TEXT[] DEFAULT '{}',
+    technologies TEXT[] DEFAULT '{}',
+    is_active BOOLEAN DEFAULT true,
+    display_order INTEGER DEFAULT 0,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Table pour les avis clients
+CREATE TABLE reviews (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+    rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
+    title TEXT,
+    comment TEXT NOT NULL,
+    is_approved BOOLEAN DEFAULT false,
+    is_featured BOOLEAN DEFAULT false,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Trigger pour updated_at sur portfolio_items
+CREATE TRIGGER update_portfolio_items_updated_at
+    BEFORE UPDATE ON portfolio_items
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+-- Trigger pour updated_at sur reviews
+CREATE TRIGGER update_reviews_updated_at
+    BEFORE UPDATE ON reviews
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+-- RLS pour portfolio_items
+ALTER TABLE portfolio_items ENABLE ROW LEVEL SECURITY;
+
+-- Politique pour portfolio_items - lecture publique
+CREATE POLICY "Portfolio items are viewable by everyone" ON portfolio_items
+    FOR SELECT USING (is_active = true);
+
+-- Politique pour portfolio_items - admin peut tout faire
+CREATE POLICY "Admins can manage portfolio items" ON portfolio_items
+    FOR ALL USING (
+        EXISTS (
+            SELECT 1 FROM user_profiles 
+            WHERE user_profiles.user_id = auth.uid() 
+            AND user_profiles.role = 'admin'
+        )
+    );
+
+-- RLS pour reviews
+ALTER TABLE reviews ENABLE ROW LEVEL SECURITY;
+
+-- Politique pour reviews - lecture des avis approuvés
+CREATE POLICY "Approved reviews are viewable by everyone" ON reviews
+    FOR SELECT USING (is_approved = true);
+
+-- Politique pour reviews - utilisateurs peuvent créer leurs avis
+CREATE POLICY "Users can create their own reviews" ON reviews
+    FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- Politique pour reviews - utilisateurs peuvent modifier leurs avis non approuvés
+CREATE POLICY "Users can update their own pending reviews" ON reviews
+    FOR UPDATE USING (
+        auth.uid() = user_id AND is_approved = false
+    );
+
+-- Politique pour reviews - admin peut tout faire
+CREATE POLICY "Admins can manage all reviews" ON reviews
+    FOR ALL USING (
+        EXISTS (
+            SELECT 1 FROM user_profiles 
+            WHERE user_profiles.user_id = auth.uid() 
+            AND user_profiles.role = 'admin'
+        )
+    );
+
+-- Insérer quelques éléments de portfolio par défaut (vides pour commencer)
+INSERT INTO portfolio_items (title, description, tags, technologies, display_order) VALUES
+('Projet à venir', 'Votre premier projet apparaîtra ici une fois ajouté via le panneau d''administration.', '{"En attente"}', '{"FiveM"}', 1);
+
 -- Index pour les performances
-CREATE INDEX idx_quotes_user_id ON quotes(user_id);
-CREATE INDEX idx_quotes_status ON quotes(status);
-CREATE INDEX idx_invoices_user_id ON invoices(user_id);
-CREATE INDEX idx_invoices_status ON invoices(status);
-CREATE INDEX idx_subscriptions_user_id ON subscriptions(user_id);
+CREATE INDEX idx_portfolio_items_active_order ON portfolio_items(is_active, display_order);
+CREATE INDEX idx_reviews_approved_featured ON reviews(is_approved, is_featured);
+CREATE INDEX idx_reviews_user_id ON reviews(user_id);
 CREATE INDEX idx_user_profiles_email ON user_profiles(email);
 CREATE INDEX idx_user_profiles_role ON user_profiles(role);
