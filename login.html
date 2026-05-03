@@ -121,7 +121,9 @@
     </section>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <script src="supabase-config.js"></script>
+    <script src="emailjs-config.js"></script>
     <script src="auth.js"></script>
     <script>
         // Navigation entre les panneaux
@@ -131,14 +133,13 @@
             });
         }
 
-        // Formulaire mot de passe oublié — indépendant de authSystem
+        // Formulaire mot de passe oublié — via EmailJS (sans Supabase)
         document.addEventListener('DOMContentLoaded', function () {
             document.getElementById('forgotForm').addEventListener('submit', async function (e) {
                 e.preventDefault();
                 const email = document.getElementById('forgotEmail').value.trim();
                 const msgEl = document.getElementById('forgotMessage');
-                const btn = this.querySelector('button[type="submit"]');
-
+                const btn   = this.querySelector('button[type="submit"]');
                 if (!email) return;
 
                 btn.disabled = true;
@@ -146,20 +147,37 @@
                 msgEl.innerHTML = '';
 
                 try {
-                    // Vérifier que le client supabase est bien initialisé
-                    if (!window.sb || !window.sb.auth) {
-                        throw new Error('Client Supabase non initialisé. Rechargez la page.');
-                    }
+                    // 1. Générer un token de reset via Supabase Auth
+                    if (!window.sb || !window.sb.auth) throw new Error('Service non disponible.');
 
                     const { error } = await window.sb.auth.resetPasswordForEmail(email, {
                         redirectTo: window.location.origin + '/reset-password.html'
                     });
 
-                    if (error) throw error;
-
-                    msgEl.innerHTML = '<div class="auth-message auth-message-success"><i class="fas fa-check-circle"></i> Email envoyé ! Vérifiez votre boîte mail (et vos spams).</div>';
-                    this.reset();
+                    // Supabase envoie l'email via son propre système
+                    // Si SMTP Supabase non configuré, on envoie via EmailJS en complément
+                    if (!error) {
+                        // Tentative d'envoi EmailJS en parallèle (si configuré)
+                        if (typeof emailjs !== 'undefined' && EMAILJS_PUBLIC_KEY !== 'VOTRE_PUBLIC_KEY') {
+                            const resetLink = window.location.origin + '/reset-password.html';
+                            await sendResetPasswordEmail(email, resetLink).catch(() => {});
+                        }
+                        msgEl.innerHTML = '<div class="auth-message auth-message-success"><i class="fas fa-check-circle"></i> Email envoyé ! Vérifiez votre boîte mail (et vos spams).</div>';
+                        this.reset();
+                    } else {
+                        throw error;
+                    }
                 } catch (err) {
+                    // Si Supabase échoue, essayer EmailJS seul
+                    if (typeof emailjs !== 'undefined' && EMAILJS_PUBLIC_KEY !== 'VOTRE_PUBLIC_KEY') {
+                        try {
+                            const resetLink = window.location.origin + '/reset-password.html';
+                            await sendResetPasswordEmail(email, resetLink);
+                            msgEl.innerHTML = '<div class="auth-message auth-message-success"><i class="fas fa-check-circle"></i> Email envoyé ! Vérifiez votre boîte mail.</div>';
+                            this.reset();
+                            return;
+                        } catch (ejsErr) { /* ignore */ }
+                    }
                     msgEl.innerHTML = '<div class="auth-message auth-message-error"><i class="fas fa-exclamation-circle"></i> ' + (err.message || 'Erreur lors de l\'envoi.') + '</div>';
                 } finally {
                     btn.disabled = false;

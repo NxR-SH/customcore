@@ -231,6 +231,11 @@ async function handleQuoteRequest() {
 
         if (error) throw error;
 
+        // Envoyer les emails via EmailJS si configuré
+        if (typeof sendQuoteEmail === 'function' && typeof EMAILJS_PUBLIC_KEY !== 'undefined' && EMAILJS_PUBLIC_KEY !== 'VOTRE_PUBLIC_KEY') {
+            sendQuoteEmail(data).catch(e => console.warn('EmailJS:', e));
+        }
+
         // Show success message
         showQuoteSuccessMessage(data);
         
@@ -934,4 +939,5 @@ async function loadReviews() {
         `;
     }
 }
+
 
