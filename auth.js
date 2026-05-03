@@ -216,10 +216,3 @@ document.addEventListener('DOMContentLoaded', () => {
 function logout() {
     authSystem?.logout()
 }
-
-// Init
-let authSystem
-document.addEventListener('DOMContentLoaded', () => {
-    authSystem = new AuthSystem()
-    window.authSystem = authSystem
-})

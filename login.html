@@ -21,65 +21,64 @@
             <ul class="nav-menu">
                 <li><a href="index.html" class="nav-link">Accueil</a></li>
                 <li><a href="services.html" class="nav-link">Services</a></li>
-                <li><a href="login.html" class="nav-link">Connexion</a></li>
             </ul>
         </div>
     </nav>
 
-    <!-- Login Section -->
     <section class="auth-section">
         <div class="container">
             <div class="auth-container">
-                <div class="auth-form-container">
+
+                <!-- Formulaire Connexion -->
+                <div class="auth-form-container" id="loginContainer">
                     <div class="auth-header">
                         <h1>Connexion</h1>
                         <p>Accédez à votre espace client</p>
                     </div>
-
+                    <div id="loginMessage"></div>
                     <form id="loginForm" class="auth-form">
                         <div class="form-group">
                             <label for="email">Email</label>
-                            <input type="email" id="email" name="email" required>
+                            <input type="email" id="email" name="email" required autocomplete="email">
                         </div>
                         <div class="form-group">
                             <label for="password">Mot de passe</label>
-                            <input type="password" id="password" name="password" required>
+                            <input type="password" id="password" name="password" required autocomplete="current-password">
                         </div>
                         <button type="submit" class="btn btn-primary btn-full">
                             <i class="fas fa-sign-in-alt"></i>
                             Se connecter
                         </button>
                     </form>
-
                     <div class="auth-links">
-                        <p>Pas encore de compte ? <a href="#" onclick="showRegister()">Créer un compte</a></p>
-                        <p><a href="#" onclick="showForgotPassword()">Mot de passe oublié ?</a></p>
+                        <p>Pas encore de compte ? <a href="#" onclick="showPanel('register')">Créer un compte</a></p>
+                        <p><a href="#" onclick="showPanel('forgot')">Mot de passe oublié ?</a></p>
                     </div>
                 </div>
 
-                <!-- Register Form (Hidden by default) -->
+                <!-- Formulaire Inscription -->
                 <div class="auth-form-container" id="registerContainer" style="display: none;">
                     <div class="auth-header">
                         <h1>Créer un compte</h1>
                         <p>Rejoignez FiveM Dev Pro</p>
                     </div>
-
+                    <div id="registerMessage"></div>
                     <form id="registerForm" class="auth-form">
                         <div class="form-group">
-                            <label for="regName">Nom complet</label>
+                            <label for="regName">Nom complet *</label>
                             <input type="text" id="regName" name="name" required>
                         </div>
                         <div class="form-group">
-                            <label for="regEmail">Email</label>
-                            <input type="email" id="regEmail" name="email" required>
+                            <label for="regEmail">Email *</label>
+                            <input type="email" id="regEmail" name="email" required autocomplete="email">
                         </div>
                         <div class="form-group">
-                            <label for="regPassword">Mot de passe</label>
-                            <input type="password" id="regPassword" name="password" required minlength="6">
+                            <label for="regPassword">Mot de passe *</label>
+                            <input type="password" id="regPassword" name="password" required minlength="6" autocomplete="new-password">
                         </div>
                         <div class="form-group">
-                            <label for="regConfirmPassword">Confirmer le mot de passe</label>
-                            <input type="password" id="regConfirmPassword" name="confirmPassword" required>
+                            <label for="regConfirmPassword">Confirmer le mot de passe *</label>
+                            <input type="password" id="regConfirmPassword" name="confirmPassword" required autocomplete="new-password">
                         </div>
                         <div class="form-group">
                             <label for="serverName">Nom du serveur (optionnel)</label>
@@ -90,11 +89,33 @@
                             Créer le compte
                         </button>
                     </form>
-
                     <div class="auth-links">
-                        <p>Déjà un compte ? <a href="#" onclick="showLogin()">Se connecter</a></p>
+                        <p>Déjà un compte ? <a href="#" onclick="showPanel('login')">Se connecter</a></p>
                     </div>
                 </div>
+
+                <!-- Formulaire Mot de passe oublié -->
+                <div class="auth-form-container" id="forgotContainer" style="display: none;">
+                    <div class="auth-header">
+                        <h1>Mot de passe oublié</h1>
+                        <p>Recevez un lien de réinitialisation par email</p>
+                    </div>
+                    <div id="forgotMessage"></div>
+                    <form id="forgotForm" class="auth-form">
+                        <div class="form-group">
+                            <label for="forgotEmail">Votre email</label>
+                            <input type="email" id="forgotEmail" name="email" required autocomplete="email">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full">
+                            <i class="fas fa-paper-plane"></i>
+                            Envoyer le lien
+                        </button>
+                    </form>
+                    <div class="auth-links">
+                        <p><a href="#" onclick="showPanel('login')">← Retour à la connexion</a></p>
+                    </div>
+                </div>
+
             </div>
         </div>
     </section>
@@ -103,21 +124,44 @@
     <script src="supabase-config.js"></script>
     <script src="auth.js"></script>
     <script>
-        function showLogin() {
-            document.getElementById('loginContainer').style.display = 'block';
-            document.getElementById('registerContainer').style.display = 'none';
+        // Navigation entre les panneaux
+        function showPanel(name) {
+            ['login', 'register', 'forgot'].forEach(p => {
+                document.getElementById(p + 'Container').style.display = p === name ? 'block' : 'none';
+            });
         }
-        function showRegister() {
-            document.getElementById('loginContainer').style.display = 'none';
-            document.getElementById('registerContainer').style.display = 'block';
-        }
-        function showForgotPassword() {
-            const email = document.getElementById('email')?.value?.trim();
-            if (!email) return alert('Saisissez votre email dans le champ de connexion d\'abord.');
-            if (confirm('Envoyer un email de réinitialisation à ' + email + ' ?')) {
-                window.authSystem?.handleForgotPassword(email);
-            }
-        }
+
+        // Formulaire mot de passe oublié — indépendant de authSystem
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('forgotForm').addEventListener('submit', async function (e) {
+                e.preventDefault();
+                const email = document.getElementById('forgotEmail').value.trim();
+                const msgEl = document.getElementById('forgotMessage');
+                const btn = this.querySelector('button[type="submit"]');
+
+                if (!email) return;
+
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Envoi...';
+                msgEl.innerHTML = '';
+
+                try {
+                    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                        redirectTo: window.location.origin + '/reset-password.html'
+                    });
+
+                    if (error) throw error;
+
+                    msgEl.innerHTML = '<div class="auth-message auth-message-success"><i class="fas fa-check-circle"></i> Email envoyé ! Vérifiez votre boîte mail.</div>';
+                    this.reset();
+                } catch (err) {
+                    msgEl.innerHTML = '<div class="auth-message auth-message-error"><i class="fas fa-exclamation-circle"></i> ' + (err.message || 'Erreur lors de l\'envoi.') + '</div>';
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-paper-plane"></i> Envoyer le lien';
+                }
+            });
+        });
     </script>
 </body>
 </html>
