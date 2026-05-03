@@ -12,42 +12,40 @@ class AdminDashboard {
 
     async init() {
         try {
-            // Show access check screen
-            this.showAccessCheck();
-            
-            // Get current user and check admin role
-            this.currentUser = await authSystem.getCurrentUser();
-            
-            if (!this.currentUser) {
-                this.redirectToLogin('Vous devez être connecté pour accéder à cette page.');
+            // Tout est caché par défaut, on vérifie d'abord
+            // 1. Vérifier la session Supabase directement
+            const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+            if (sessionError || !session) {
+                window.location.href = 'login.html';
                 return;
             }
 
-            // Double check admin role from database
-            const { data: userProfile, error } = await supabase
+            this.currentUser = session.user;
+
+            // 2. Vérifier le rôle admin en base de données
+            const { data: userProfile, error: profileError } = await supabase
                 .from('user_profiles')
                 .select('role')
                 .eq('id', this.currentUser.id)
                 .single();
 
-            if (error || !userProfile || userProfile.role !== 'admin') {
-                this.redirectToLogin('Accès refusé. Vous n\'avez pas les droits d\'administrateur.');
+            if (profileError || !userProfile || userProfile.role !== 'admin') {
+                this.showAccessDenied();
                 return;
             }
 
-            // Hide access check and show dashboard
-            this.hideAccessCheck();
+            // 3. Accès accordé : afficher le contenu
+            document.getElementById('adminAccessCheck').style.display = 'none';
             this.showDashboard();
 
-            // Load data
+            // 4. Charger les données
             await this.loadData();
-            
-            // Initialize UI
             this.initializeUI();
 
         } catch (error) {
-            console.error('Error initializing admin dashboard:', error);
-            this.redirectToLogin('Erreur lors de la vérification des droits d\'accès.');
+            console.error('Erreur init admin:', error);
+            this.showAccessDenied();
         }
     }
 
@@ -66,14 +64,16 @@ class AdminDashboard {
     }
 
     showDashboard() {
-        const dashboard = document.getElementById('adminDashboard');
-        if (dashboard) {
-            dashboard.style.display = 'block';
-        }
+        const content = document.getElementById('adminContent');
+        if (content) content.style.display = 'block';
+    }
+
+    showAccessDenied() {
+        document.getElementById('adminAccessCheck').style.display = 'none';
+        document.getElementById('accessDeniedScreen').style.display = 'flex';
     }
 
     redirectToLogin(message) {
-        alert(message);
         window.location.href = 'login.html';
     }
 

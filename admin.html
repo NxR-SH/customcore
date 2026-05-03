@@ -4,102 +4,120 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Administration - FiveM Dev Pro</title>
-    <meta name="description" content="Panneau d'administration FiveM Dev Pro">
+    <meta name="robots" content="noindex, nofollow">
     <link rel="stylesheet" href="style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body class="admin-page">
-    <!-- Admin Access Check -->
+
+    <!-- Écran de vérification (visible par défaut, cache tout le reste) -->
     <div id="adminAccessCheck" class="admin-access-check">
         <div class="access-check-content">
-            <div class="loader-content">
-                <div class="neon-circle"></div>
-                <p>Vérification des droits d'accès...</p>
+            <div class="neon-circle"></div>
+            <p>Vérification des droits d'accès...</p>
+        </div>
+    </div>
+
+    <!-- Écran accès refusé (caché par défaut) -->
+    <div id="accessDeniedScreen" class="admin-access-check" style="display: none;">
+        <div class="access-check-content">
+            <i class="fas fa-shield-alt" style="font-size: 3rem; color: #dc3545; margin-bottom: 1.5rem;"></i>
+            <h2 style="color: var(--text-primary); margin-bottom: 1rem;">Accès Refusé</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 2rem;">Vous n'avez pas les droits administrateur.</p>
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                <a href="index.html" class="btn btn-secondary">
+                    <i class="fas fa-home"></i> Accueil
+                </a>
+                <a href="login.html" class="btn btn-primary">
+                    <i class="fas fa-sign-in-alt"></i> Se connecter
+                </a>
             </div>
         </div>
     </div>
 
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-logo">
-                <a href="index.html">
-                    <i class="fas fa-code"></i>
-                    <span>FiveM Dev Pro</span>
-                </a>
-            </div>
-            <ul class="nav-menu">
-                <li><a href="admin.html" class="nav-link">Admin</a></li>
-                <li><a href="#quotes" class="nav-link">Devis</a></li>
-                <li><a href="#clients" class="nav-link">Clients</a></li>
-                <li><a href="#invoices" class="nav-link">Factures</a></li>
-                <li><a href="#" onclick="logout()" class="nav-link">Déconnexion</a></li>
-            </ul>
-        </div>
-    </nav>
+    <!-- Contenu admin (caché par défaut, affiché seulement si admin vérifié) -->
+    <div id="adminContent" style="display: none;">
 
-    <!-- Admin Dashboard -->
-    <section id="adminDashboard" class="admin-dashboard" style="display: none;">
-        <div class="container">
-            <div class="admin-header">
-                <h1>Panneau d'Administration</h1>
-                <p>Gérez vos devis, clients et factures</p>
+        <!-- Navigation -->
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-logo">
+                    <a href="index.html">
+                        <i class="fas fa-code"></i>
+                        <span>FiveM Dev Pro</span>
+                    </a>
+                </div>
+                <ul class="nav-menu">
+                    <li><a href="index.html" class="nav-link">Accueil</a></li>
+                    <li><a href="dashboard.html" class="nav-link">Dashboard</a></li>
+                    <li><a href="#" onclick="authSystem.logout()" class="nav-link" style="color: #dc3545;">Déconnexion</a></li>
+                </ul>
             </div>
+        </nav>
 
-            <!-- Admin Stats -->
-            <div class="admin-stats-grid">
-                <div class="admin-stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-file-alt"></i>
+        <!-- Admin Dashboard -->
+        <section class="admin-dashboard">
+            <div class="container">
+                <div class="admin-header">
+                    <h1>Panneau d'<span class="neon-text">Administration</span></h1>
+                    <p>Gérez vos devis, clients, factures, portfolio et avis</p>
+                </div>
+
+                <!-- Stats -->
+                <div class="admin-stats-grid">
+                    <div class="admin-stat-card">
+                        <div class="stat-icon"><i class="fas fa-file-alt"></i></div>
+                        <div class="stat-info">
+                            <h3 id="totalQuotes">0</h3>
+                            <p>Devis totaux</p>
+                        </div>
                     </div>
-                    <div class="stat-info">
-                        <h3 id="totalQuotes">0</h3>
-                        <p>Devis totaux</p>
+                    <div class="admin-stat-card">
+                        <div class="stat-icon"><i class="fas fa-users"></i></div>
+                        <div class="stat-info">
+                            <h3 id="totalClients">0</h3>
+                            <p>Clients</p>
+                        </div>
+                    </div>
+                    <div class="admin-stat-card">
+                        <div class="stat-icon"><i class="fas fa-file-invoice"></i></div>
+                        <div class="stat-info">
+                            <h3 id="totalInvoices">0</h3>
+                            <p>Factures</p>
+                        </div>
+                    </div>
+                    <div class="admin-stat-card">
+                        <div class="stat-icon"><i class="fas fa-euro-sign"></i></div>
+                        <div class="stat-info">
+                            <h3 id="totalRevenue">€0</h3>
+                            <p>Chiffre d'affaires</p>
+                        </div>
                     </div>
                 </div>
-                <div class="admin-stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3 id="totalClients">0</h3>
-                        <p>Clients</p>
-                    </div>
-                </div>
-                <div class="admin-stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-file-invoice"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3 id="totalInvoices">0</h3>
-                        <p>Factures</p>
-                    </div>
-                </div>
-                <div class="admin-stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-euro-sign"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3 id="totalRevenue">€0</h3>
-                        <p>Chiffre d'affaires</p>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Admin Navigation Tabs -->
-            <div class="admin-tabs">
-                <button class="tab-btn active" onclick="showTab('quotes')">Devis</button>
-                <button class="tab-btn" onclick="showTab('clients')">Clients</button>
-                <button class="tab-btn" onclick="showTab('invoices')">Factures</button>
-                <button class="tab-btn" onclick="showTab('portfolio')">Portfolio</button>
-                <button class="tab-btn" onclick="showTab('reviews')">Avis</button>
-            </div>
+                <!-- Onglets -->
+                <div class="admin-tabs">
+                    <button class="tab-btn active" onclick="showTab('quotes')">
+                        <i class="fas fa-file-alt"></i> Devis
+                    </button>
+                    <button class="tab-btn" onclick="showTab('clients')">
+                        <i class="fas fa-users"></i> Clients
+                    </button>
+                    <button class="tab-btn" onclick="showTab('invoices')">
+                        <i class="fas fa-file-invoice"></i> Factures
+                    </button>
+                    <button class="tab-btn" onclick="showTab('portfolio')">
+                        <i class="fas fa-images"></i> Portfolio
+                    </button>
+                    <button class="tab-btn" onclick="showTab('reviews')">
+                        <i class="fas fa-star"></i> Avis
+                    </button>
+                </div>
 
-            <!-- Quotes Management -->
-            <section id="quotes" class="admin-section">
-                <div class="section-header">
-                    <h2>Gestion des Devis</h2>
-                    <div class="section-actions">
+                <!-- Section Devis -->
+                <section id="quotes" class="admin-section">
+                    <div class="section-header">
+                        <h2>Gestion des Devis</h2>
                         <select id="quotesFilter" class="filter-select">
                             <option value="all">Tous les devis</option>
                             <option value="pending">En attente</option>
@@ -108,37 +126,25 @@
                             <option value="rejected">Refusés</option>
                         </select>
                     </div>
-                </div>
-                <div id="quotesTable" class="admin-table">
-                    <p class="no-data">Aucun devis pour le moment</p>
-                </div>
-            </section>
-
-            <!-- Clients Management -->
-            <section id="clients" class="admin-section">
-                <div class="section-header">
-                    <h2>Gestion des Clients</h2>
-                    <div class="section-actions">
-                        <button class="btn btn-primary" onclick="adminDashboard.showAddClientModal()">
-                            <i class="fas fa-plus"></i>
-                            Ajouter un client
-                        </button>
+                    <div id="quotesTable" class="admin-table">
+                        <p class="no-data">Chargement...</p>
                     </div>
-                </div>
-                <div id="clientsTable" class="admin-table">
-                    <p class="no-data">Aucun client pour le moment</p>
-                </div>
-            </section>
+                </section>
 
-            <!-- Invoices Management -->
-            <section id="invoices" class="admin-section">
-                <div class="section-header">
-                    <h2>Gestion des Factures</h2>
-                    <div class="section-actions">
-                        <button class="btn btn-primary" onclick="adminDashboard.showCreateInvoiceModal()">
-                            <i class="fas fa-plus"></i>
-                            Créer une facture
-                        </button>
+                <!-- Section Clients -->
+                <section id="clients" class="admin-section" style="display: none;">
+                    <div class="section-header">
+                        <h2>Gestion des Clients</h2>
+                    </div>
+                    <div id="clientsTable" class="admin-table">
+                        <p class="no-data">Chargement...</p>
+                    </div>
+                </section>
+
+                <!-- Section Factures -->
+                <section id="invoices" class="admin-section" style="display: none;">
+                    <div class="section-header">
+                        <h2>Gestion des Factures</h2>
                         <select id="invoicesFilter" class="filter-select">
                             <option value="all">Toutes les factures</option>
                             <option value="pending">En attente</option>
@@ -146,91 +152,87 @@
                             <option value="overdue">En retard</option>
                         </select>
                     </div>
-                </div>
-                <div id="invoicesTable" class="admin-table">
-                    <p class="no-data">Aucune facture pour le moment</p>
-                </div>
-            </section>
-        </div>
-    </section>
-
-    <!-- Portfolio Management -->
-    <section id="portfolio" class="admin-section" style="display: none;">
-        <div class="section-header">
-            <h2>Gestion du Portfolio</h2>
-            <button class="btn btn-primary" onclick="showPortfolioForm()">
-                <i class="fas fa-plus"></i>
-                Ajouter un projet
-            </button>
-        </div>
-
-        <div id="portfolioForm" class="portfolio-management" style="display: none;">
-            <h3>Ajouter/Modifier un projet</h3>
-            <form id="portfolioItemForm" class="portfolio-form">
-                <div class="form-group">
-                    <label for="portfolioTitle">Titre *</label>
-                    <input type="text" id="portfolioTitle" required>
-                </div>
-                <div class="form-group">
-                    <label for="portfolioImageUrl">URL de l'image</label>
-                    <input type="url" id="portfolioImageUrl" placeholder="https://...">
-                </div>
-                <div class="form-group full-width">
-                    <label for="portfolioDescription">Description *</label>
-                    <textarea id="portfolioDescription" required></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="portfolioTags">Tags (séparés par des virgules)</label>
-                    <input type="text" id="portfolioTags" placeholder="ESX, UI/UX, MySQL">
-                </div>
-                <div class="form-group">
-                    <label for="portfolioTechnologies">Technologies (séparées par des virgules)</label>
-                    <input type="text" id="portfolioTechnologies" placeholder="JavaScript, HTML, CSS">
-                </div>
-                <div class="form-group">
-                    <label for="portfolioOrder">Ordre d'affichage</label>
-                    <input type="number" id="portfolioOrder" min="0" value="0">
-                </div>
-                <div class="form-group full-width">
-                    <div class="form-actions">
-                        <button type="button" class="btn btn-secondary" onclick="hidePortfolioForm()">Annuler</button>
-                        <button type="submit" class="btn btn-primary">Enregistrer</button>
+                    <div id="invoicesTable" class="admin-table">
+                        <p class="no-data">Chargement...</p>
                     </div>
-                </div>
-            </form>
-        </div>
+                </section>
 
-        <div id="portfolioList" class="portfolio-list">
-            <p class="no-data">Aucun projet dans le portfolio</p>
-        </div>
-    </section>
+                <!-- Section Portfolio -->
+                <section id="portfolio" class="admin-section" style="display: none;">
+                    <div class="section-header">
+                        <h2>Gestion du Portfolio</h2>
+                        <button class="btn btn-primary" onclick="showPortfolioForm()">
+                            <i class="fas fa-plus"></i> Ajouter un projet
+                        </button>
+                    </div>
 
-    <!-- Reviews Management -->
-    <section id="reviews" class="admin-section" style="display: none;">
-        <div class="section-header">
-            <h2>Gestion des Avis</h2>
-            <div class="filter-controls">
-                <select id="reviewsFilter">
-                    <option value="all">Tous les avis</option>
-                    <option value="pending">En attente</option>
-                    <option value="approved">Approuvés</option>
-                    <option value="featured">Mis en avant</option>
-                </select>
+                    <div id="portfolioForm" class="portfolio-management" style="display: none;">
+                        <h3>Ajouter / Modifier un projet</h3>
+                        <form id="portfolioItemForm" class="portfolio-form">
+                            <div class="form-group">
+                                <label for="portfolioTitle">Titre *</label>
+                                <input type="text" id="portfolioTitle" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="portfolioImageUrl">URL de l'image</label>
+                                <input type="url" id="portfolioImageUrl" placeholder="https://...">
+                            </div>
+                            <div class="form-group full-width">
+                                <label for="portfolioDescription">Description *</label>
+                                <textarea id="portfolioDescription" rows="4" required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="portfolioTags">Tags (séparés par des virgules)</label>
+                                <input type="text" id="portfolioTags" placeholder="ESX, UI/UX, MySQL">
+                            </div>
+                            <div class="form-group">
+                                <label for="portfolioTechnologies">Technologies</label>
+                                <input type="text" id="portfolioTechnologies" placeholder="JavaScript, HTML, CSS">
+                            </div>
+                            <div class="form-group">
+                                <label for="portfolioOrder">Ordre d'affichage</label>
+                                <input type="number" id="portfolioOrder" min="0" value="0">
+                            </div>
+                            <div class="form-group full-width">
+                                <div class="form-actions">
+                                    <button type="button" class="btn btn-secondary" onclick="hidePortfolioForm()">Annuler</button>
+                                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div id="portfolioList" class="portfolio-list">
+                        <p class="no-data">Aucun projet dans le portfolio</p>
+                    </div>
+                </section>
+
+                <!-- Section Avis -->
+                <section id="reviews" class="admin-section" style="display: none;">
+                    <div class="section-header">
+                        <h2>Gestion des Avis</h2>
+                        <select id="reviewsFilter" class="filter-select">
+                            <option value="all">Tous les avis</option>
+                            <option value="pending">En attente</option>
+                            <option value="approved">Approuvés</option>
+                            <option value="featured">Mis en avant</option>
+                        </select>
+                    </div>
+                    <div id="reviewsList" class="review-management">
+                        <p class="no-data">Chargement...</p>
+                    </div>
+                </section>
+
             </div>
-        </div>
+        </section>
 
-        <div id="reviewsList" class="review-management">
-            <p class="no-data">Aucun avis trouvé</p>
-        </div>
-    </section>
+    </div><!-- fin #adminContent -->
 
-    <!-- Modals will be inserted here dynamically -->
+    <!-- Modals insérées dynamiquement -->
 
-    <script src="https://js.stripe.com/v3/"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
-    <script src="admin-auth.js"></script>
     <script src="auth.js"></script>
     <script src="admin.js"></script>
     <script src="admin-tabs.js"></script>

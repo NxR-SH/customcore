@@ -1,5 +1,5 @@
 // Reset Password functionality
-import supabaseService from './supabase-config.js'
+// Utilise supabase global (chargé via CDN)
 
 class ResetPasswordManager {
     constructor() {
@@ -109,7 +109,8 @@ class ResetPasswordManager {
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mise à jour...'
 
         try {
-            const result = await supabaseService.updatePassword(newPassword)
+            const { error } = await supabase.auth.updateUser({ password: newPassword })
+            const result = { success: !error, error: error?.message }
             
             if (result.success) {
                 this.showSuccess('Mot de passe mis à jour avec succès ! Redirection vers la connexion...')
