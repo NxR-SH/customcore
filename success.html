@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paiement Réussi - FiveM Dev Pro</title>
+    <meta name="description" content="Votre commande a été confirmée. Nous vous contacterons sous 24h pour débuter votre projet FiveM.">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="index.html">
+                    <i class="fas fa-code"></i>
+                    <span>FiveM Dev Pro</span>
+                </a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Accueil</a></li>
+                <li><a href="services.html" class="nav-link">Services</a></li>
+                <li><a href="services.html#dashboard" class="nav-link">Dashboard</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Success Section -->
+    <section class="success-section">
+        <div class="container">
+            <div class="success-content">
+                <div class="success-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h1>Paiement <span class="neon-text">Réussi</span> !</h1>
+                <p class="success-message">
+                    Votre commande a été confirmée avec succès. Nous avons reçu votre paiement et votre facture a été générée automatiquement.
+                </p>
+                
+                <div class="success-details">
+                    <div class="detail-card">
+                        <div class="detail-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="detail-content">
+                            <h3>Prochaines étapes</h3>
+                            <p>Nous vous contacterons dans les <strong>24 heures</strong> pour discuter des détails de votre projet et planifier le développement.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-card">
+                        <div class="detail-icon">
+                            <i class="fas fa-file-invoice"></i>
+                        </div>
+                        <div class="detail-content">
+                            <h3>Facture</h3>
+                            <p>Votre facture a été <strong>téléchargée automatiquement</strong>. Vous pouvez également la retrouver dans votre dashboard.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-card">
+                        <div class="detail-icon">
+                            <i class="fas fa-headset"></i>
+                        </div>
+                        <div class="detail-content">
+                            <h3>Support</h3>
+                            <p>Notre équipe est disponible <strong>24h/7j</strong> pour répondre à toutes vos questions via Discord ou email.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="success-actions">
+                    <a href="services.html#dashboard" class="btn btn-primary">
+                        <i class="fas fa-tachometer-alt"></i>
+                        Voir mon dashboard
+                    </a>
+                    <a href="index.html" class="btn btn-secondary">
+                        <i class="fas fa-home"></i>
+                        Retour à l'accueil
+                    </a>
+                </div>
+
+                <div class="contact-info">
+                    <h3>Nous contacter</h3>
+                    <div class="contact-methods">
+                        <div class="contact-method">
+                            <i class="fas fa-envelope"></i>
+                            <span>contact@fivemdevpro.com</span>
+                        </div>
+                        <div class="contact-method">
+                            <i class="fab fa-discord"></i>
+                            <span>FiveM Dev Pro#1234</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <i class="fas fa-code"></i>
+                        <span>FiveM Dev Pro</span>
+                    </div>
+                    <p>Services professionnels de développement FiveM pour des serveurs GTA RP de qualité.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Services</h4>
+                    <ul>
+                        <li><a href="services.html">Scripts ESX/QBCore</a></li>
+                        <li><a href="services.html">Interfaces UI/UX</a></li>
+                        <li><a href="services.html">Bots Discord</a></li>
+                        <li><a href="services.html">Optimisation</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact</h4>
+                    <ul>
+                        <li><i class="fas fa-envelope"></i> contact@fivemdevpro.com</li>
+                        <li><i class="fab fa-discord"></i> FiveM Dev Pro#1234</li>
+                        <li><i class="fas fa-clock"></i> 24h/7j disponible</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 FiveM Dev Pro. Tous droits réservés.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://js.stripe.com/v3/"></script>
+    <script src="script.js"></script>
+    <script>
+        // Handle successful payment on success page
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const quoteId = urlParams.get('quote');
+            const paymentIntent = urlParams.get('payment_intent');
+            
+            if (quoteId && paymentIntent) {
+                // Handle successful payment
+                handleSuccessfulPayment(quoteId, paymentIntent);
+                
+                // Update success message
+                const successMessage = document.querySelector('.success-message');
+                if (successMessage) {
+                    successMessage.innerHTML = `
+                        Votre paiement pour le devis <strong>${quoteId}</strong> a été confirmé avec succès. 
+                        Votre facture a été générée automatiquement et le développement va commencer sous 24h.
+                    `;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

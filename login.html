@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion - FiveM Dev Pro</title>
+    <meta name="description" content="Connectez-vous à votre espace client FiveM Dev Pro">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="index.html">
+                    <i class="fas fa-code"></i>
+                    <span>FiveM Dev Pro</span>
+                </a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Accueil</a></li>
+                <li><a href="services.html" class="nav-link">Services</a></li>
+                <li><a href="login.html" class="nav-link">Connexion</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Login Section -->
+    <section class="auth-section">
+        <div class="container">
+            <div class="auth-container">
+                <div class="auth-form-container">
+                    <div class="auth-header">
+                        <h1>Connexion</h1>
+                        <p>Accédez à votre espace client</p>
+                    </div>
+
+                    <form id="loginForm" class="auth-form">
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Mot de passe</label>
+                            <input type="password" id="password" name="password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full">
+                            <i class="fas fa-sign-in-alt"></i>
+                            Se connecter
+                        </button>
+                    </form>
+
+                    <div class="auth-links">
+                        <p>Pas encore de compte ? <a href="#" onclick="showRegister()">Créer un compte</a></p>
+                        <p><a href="#" onclick="showForgotPassword()">Mot de passe oublié ?</a></p>
+                    </div>
+                </div>
+
+                <!-- Register Form (Hidden by default) -->
+                <div class="auth-form-container" id="registerContainer" style="display: none;">
+                    <div class="auth-header">
+                        <h1>Créer un compte</h1>
+                        <p>Rejoignez FiveM Dev Pro</p>
+                    </div>
+
+                    <form id="registerForm" class="auth-form">
+                        <div class="form-group">
+                            <label for="regName">Nom complet</label>
+                            <input type="text" id="regName" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="regEmail">Email</label>
+                            <input type="email" id="regEmail" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="regPassword">Mot de passe</label>
+                            <input type="password" id="regPassword" name="password" required minlength="6">
+                        </div>
+                        <div class="form-group">
+                            <label for="regConfirmPassword">Confirmer le mot de passe</label>
+                            <input type="password" id="regConfirmPassword" name="confirmPassword" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="serverName">Nom du serveur (optionnel)</label>
+                            <input type="text" id="serverName" name="serverName">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full">
+                            <i class="fas fa-user-plus"></i>
+                            Créer le compte
+                        </button>
+                    </form>
+
+                    <div class="auth-links">
+                        <p>Déjà un compte ? <a href="#" onclick="showLogin()">Se connecter</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script type="module" src="supabase-config.js"></script>
+    <script type="module" src="auth.js"></script>
+</body>
+</html>

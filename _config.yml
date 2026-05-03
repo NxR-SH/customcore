@@ -1,0 +1,18 @@
+title: "FiveM Dev Pro - Services de Développement FiveM"
+description: "Services professionnels de développement FiveM : Scripts ESX/QBCore, interfaces UI, optimisation serveur, bots Discord pour serveurs GTA RP."
+url: "https://votre-username.github.io"
+baseurl: "/fivem-dev-pro"
+
+# SEO
+lang: fr
+author: "FiveM Dev Pro"
+
+# GitHub Pages
+plugins:
+  - jekyll-sitemap
+  - jekyll-seo-tag
+
+# Exclude files
+exclude:
+  - README.md
+  - .gitignore

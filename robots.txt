@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://votre-username.github.io/fivem-dev-pro/sitemap.xml
