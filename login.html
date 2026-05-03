@@ -102,5 +102,22 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
     <script src="auth.js"></script>
+    <script>
+        function showLogin() {
+            document.getElementById('loginContainer').style.display = 'block';
+            document.getElementById('registerContainer').style.display = 'none';
+        }
+        function showRegister() {
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('registerContainer').style.display = 'block';
+        }
+        function showForgotPassword() {
+            const email = document.getElementById('email')?.value?.trim();
+            if (!email) return alert('Saisissez votre email dans le champ de connexion d\'abord.');
+            if (confirm('Envoyer un email de réinitialisation à ' + email + ' ?')) {
+                window.authSystem?.handleForgotPassword(email);
+            }
+        }
+    </script>
 </body>
 </html>

@@ -205,25 +205,14 @@ class AuthSystem {
     }
 }
 
+// Init
+let authSystem
+document.addEventListener('DOMContentLoaded', () => {
+    authSystem = new AuthSystem()
+    window.authSystem = authSystem
+})
+
 // Fonctions globales
-function showLogin() {
-    document.getElementById('loginContainer').style.display = 'block'
-    document.getElementById('registerContainer').style.display = 'none'
-}
-
-function showRegister() {
-    document.getElementById('loginContainer').style.display = 'none'
-    document.getElementById('registerContainer').style.display = 'block'
-}
-
-function showForgotPassword() {
-    const email = document.getElementById('email')?.value
-    if (!email) return alert('Saisissez votre email dans le champ de connexion d\'abord')
-    if (confirm(`Envoyer un email de réinitialisation à ${email} ?`)) {
-        authSystem?.handleForgotPassword(email)
-    }
-}
-
 function logout() {
     authSystem?.logout()
 }
